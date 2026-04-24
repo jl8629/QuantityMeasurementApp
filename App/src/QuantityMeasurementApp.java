@@ -51,13 +51,16 @@ public class QuantityMeasurementApp {
             return targetUnit.fromBase(baseValue);
         }
 
-        public QuantityLength add(QuantityLength other) {
+        public QuantityLength add(QuantityLength other, Unit targetUnit) {
             if (other == null) {
                 throw new IllegalArgumentException("Other quantity must not be null");
             }
+            if (targetUnit == null) {
+                throw new IllegalArgumentException("Target unit must not be null");
+            }
             double baseSum = this.unit.toBase(this.value) + other.unit.toBase(other.value);
-            double resultValue = this.unit.fromBase(baseSum);
-            return new QuantityLength(resultValue, this.unit);
+            double resultValue = targetUnit.fromBase(baseSum);
+            return new QuantityLength(resultValue, targetUnit);
         }
 
         @Override
@@ -69,17 +72,17 @@ public class QuantityMeasurementApp {
     public static void main(String[] args) {
         QuantityLength foot = new QuantityLength(1.0, Unit.FEET);
         QuantityLength inch = new QuantityLength(12.0, Unit.INCH);
-        QuantityLength result = foot.add(inch);
-        System.out.println("1 Foot + 12 Inches = " + result);
+        QuantityLength result = foot.add(inch, Unit.YARD);
+        System.out.println("1 Foot + 12 Inches in Yards = " + result);
 
         QuantityLength yard = new QuantityLength(1.0, Unit.YARD);
-        QuantityLength feet = new QuantityLength(3.0, Unit.FEET);
-        QuantityLength result2 = yard.add(feet);
-        System.out.println("1 Yard + 3 Feet = " + result2);
+        QuantityLength cm = new QuantityLength(91.44, Unit.CM);
+        QuantityLength result2 = yard.add(cm, Unit.FEET);
+        System.out.println("1 Yard + 91.44 Cm in Feet = " + result2);
 
-        QuantityLength cm = new QuantityLength(30.48, Unit.CM);
-        QuantityLength foot2 = new QuantityLength(1.0, Unit.FEET);
-        QuantityLength result3 = foot2.add(cm);
-        System.out.println("1 Foot + 30.48 Cm = " + result3);
+        QuantityLength inch2 = new QuantityLength(6.0, Unit.INCH);
+        QuantityLength cm2 = new QuantityLength(2.54, Unit.CM);
+        QuantityLength result3 = inch2.add(cm2, Unit.INCH);
+        System.out.println("6 Inches + 2.54 Cm in Inches = " + result3);
     }
 }
