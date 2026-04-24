@@ -2,7 +2,9 @@ public class QuantityMeasurementApp {
 
     enum Unit {
         FEET(12.0),
-        INCH(1.0);
+        INCH(1.0),
+        YARD(36.0),
+        CM(0.393701);
 
         private final double conversionFactor;
 
@@ -30,16 +32,20 @@ public class QuantityMeasurementApp {
     }
 
     public static void main(String[] args) {
-        QuantityLength feet1 = new QuantityLength(1.0, Unit.FEET);
-        QuantityLength feet2 = new QuantityLength(1.0, Unit.FEET);
-        System.out.println("Feet Equality: " + feet1.areEqual(feet2));
+        QuantityLength feet = new QuantityLength(3.0, Unit.FEET);
+        QuantityLength yard = new QuantityLength(1.0, Unit.YARD);
+        System.out.println("Feet vs Yard Equality: " + feet.areEqual(yard));
 
-        QuantityLength inch1 = new QuantityLength(12.0, Unit.INCH);
-        QuantityLength inch2 = new QuantityLength(12.0, Unit.INCH);
-        System.out.println("Inches Equality: " + inch1.areEqual(inch2));
-
-        QuantityLength foot = new QuantityLength(1.0, Unit.FEET);
         QuantityLength inch = new QuantityLength(12.0, Unit.INCH);
-        System.out.println("Cross Unit Equality: " + foot.areEqual(inch));
+        QuantityLength foot = new QuantityLength(1.0, Unit.FEET);
+        System.out.println("Inch vs Foot Equality: " + inch.areEqual(foot));
+
+        QuantityLength cm = new QuantityLength(2.54, Unit.CM);
+        QuantityLength inch2 = new QuantityLength(1.0, Unit.INCH);
+        System.out.println("Cm vs Inch Equality: " + cm.areEqual(inch2));
+
+        QuantityLength yard2 = new QuantityLength(2.0, Unit.YARD);
+        QuantityLength feet2 = new QuantityLength(6.0, Unit.FEET);
+        System.out.println("Yard vs Feet Equality: " + yard2.areEqual(feet2));
     }
 }
