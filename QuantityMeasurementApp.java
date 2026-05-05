@@ -96,12 +96,36 @@ class Quantity<U extends IMeasurable> {
     private final double value;
     private final U unit;
 
+    private enum Operation {
+        ADD, SUBTRACT, DIVIDE
+    }
+
     public Quantity(double value, U unit) {
         if (unit == null || Double.isNaN(value) || Double.isInfinite(value)) {
             throw new IllegalArgumentException();
         }
         this.value = value;
         this.unit = unit;
+    }
+
+    private double compute(Quantity<U> other, Operation op) {
+        if (other == null) throw new IllegalArgumentException();
+        if (!this.unit.getClass().equals(other.unit.getClass())) throw new IllegalArgumentException();
+
+        double base1 = this.unit.convertToBaseUnit(this.value);
+        double base2 = other.unit.convertToBaseUnit(other.value);
+
+        switch (op) {
+            case ADD:
+                return base1 + base2;
+            case SUBTRACT:
+                return base1 - base2;
+            case DIVIDE:
+                if (base2 == 0.0) throw new ArithmeticException();
+                return base1 / base2;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     public Quantity<U> convertTo(U targetUnit) {
@@ -116,11 +140,8 @@ class Quantity<U extends IMeasurable> {
     }
 
     public Quantity<U> add(Quantity<U> other, U targetUnit) {
-        validate(other);
-        double base1 = this.unit.convertToBaseUnit(this.value);
-        double base2 = other.unit.convertToBaseUnit(other.value);
-        double sumBase = base1 + base2;
-        double result = targetUnit.convertFromBaseUnit(sumBase);
+        double baseResult = compute(other, Operation.ADD);
+        double result = targetUnit.convertFromBaseUnit(baseResult);
         double rounded = Math.round(result * 100.0) / 100.0;
         return new Quantity<>(rounded, targetUnit);
     }
@@ -130,26 +151,14 @@ class Quantity<U extends IMeasurable> {
     }
 
     public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
-        validate(other);
-        double base1 = this.unit.convertToBaseUnit(this.value);
-        double base2 = other.unit.convertToBaseUnit(other.value);
-        double diffBase = base1 - base2;
-        double result = targetUnit.convertFromBaseUnit(diffBase);
+        double baseResult = compute(other, Operation.SUBTRACT);
+        double result = targetUnit.convertFromBaseUnit(baseResult);
         double rounded = Math.round(result * 100.0) / 100.0;
         return new Quantity<>(rounded, targetUnit);
     }
 
     public double divide(Quantity<U> other) {
-        validate(other);
-        double base1 = this.unit.convertToBaseUnit(this.value);
-        double base2 = other.unit.convertToBaseUnit(other.value);
-        if (base2 == 0.0) throw new ArithmeticException();
-        return base1 / base2;
-    }
-
-    private void validate(Quantity<U> other) {
-        if (other == null) throw new IllegalArgumentException();
-        if (!this.unit.getClass().equals(other.unit.getClass())) throw new IllegalArgumentException();
+        return compute(other, Operation.DIVIDE);
     }
 
     @Override
@@ -179,18 +188,21 @@ public class QuantityMeasurementApp {
         Quantity<LengthUnit> l1 = new Quantity<>(10, LengthUnit.FEET);
         Quantity<LengthUnit> l2 = new Quantity<>(6, LengthUnit.INCHES);
 
+        System.out.println(l1.add(l2));
         System.out.println(l1.subtract(l2));
         System.out.println(l1.divide(l2));
 
         Quantity<WeightUnit> w1 = new Quantity<>(10, WeightUnit.KILOGRAM);
         Quantity<WeightUnit> w2 = new Quantity<>(5, WeightUnit.KILOGRAM);
 
+        System.out.println(w1.add(w2));
         System.out.println(w1.subtract(w2));
         System.out.println(w1.divide(w2));
 
         Quantity<VolumeUnit> v1 = new Quantity<>(5, VolumeUnit.LITRE);
         Quantity<VolumeUnit> v2 = new Quantity<>(2, VolumeUnit.LITRE);
 
+        System.out.println(v1.add(v2));
         System.out.println(v1.subtract(v2));
         System.out.println(v1.divide(v2));
     }
