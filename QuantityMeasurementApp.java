@@ -116,12 +116,40 @@ class Quantity<U extends IMeasurable> {
     }
 
     public Quantity<U> add(Quantity<U> other, U targetUnit) {
+        validate(other);
         double base1 = this.unit.convertToBaseUnit(this.value);
         double base2 = other.unit.convertToBaseUnit(other.value);
         double sumBase = base1 + base2;
         double result = targetUnit.convertFromBaseUnit(sumBase);
         double rounded = Math.round(result * 100.0) / 100.0;
         return new Quantity<>(rounded, targetUnit);
+    }
+
+    public Quantity<U> subtract(Quantity<U> other) {
+        return subtract(other, this.unit);
+    }
+
+    public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
+        validate(other);
+        double base1 = this.unit.convertToBaseUnit(this.value);
+        double base2 = other.unit.convertToBaseUnit(other.value);
+        double diffBase = base1 - base2;
+        double result = targetUnit.convertFromBaseUnit(diffBase);
+        double rounded = Math.round(result * 100.0) / 100.0;
+        return new Quantity<>(rounded, targetUnit);
+    }
+
+    public double divide(Quantity<U> other) {
+        validate(other);
+        double base1 = this.unit.convertToBaseUnit(this.value);
+        double base2 = other.unit.convertToBaseUnit(other.value);
+        if (base2 == 0.0) throw new ArithmeticException();
+        return base1 / base2;
+    }
+
+    private void validate(Quantity<U> other) {
+        if (other == null) throw new IllegalArgumentException();
+        if (!this.unit.getClass().equals(other.unit.getClass())) throw new IllegalArgumentException();
     }
 
     @Override
@@ -148,24 +176,22 @@ class Quantity<U extends IMeasurable> {
 
 public class QuantityMeasurementApp {
     public static void main(String[] args) {
-        Quantity<LengthUnit> l1 = new Quantity<>(1, LengthUnit.FEET);
-        Quantity<LengthUnit> l2 = new Quantity<>(12, LengthUnit.INCHES);
-        System.out.println(l1.equals(l2));
-        System.out.println(l1.convertTo(LengthUnit.INCHES));
-        System.out.println(l1.add(l2));
+        Quantity<LengthUnit> l1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> l2 = new Quantity<>(6, LengthUnit.INCHES);
 
-        Quantity<WeightUnit> w1 = new Quantity<>(1, WeightUnit.KILOGRAM);
-        Quantity<WeightUnit> w2 = new Quantity<>(1000, WeightUnit.GRAM);
-        System.out.println(w1.equals(w2));
-        System.out.println(w1.convertTo(WeightUnit.GRAM));
-        System.out.println(w1.add(w2));
+        System.out.println(l1.subtract(l2));
+        System.out.println(l1.divide(l2));
 
-        Quantity<VolumeUnit> v1 = new Quantity<>(1, VolumeUnit.LITRE);
-        Quantity<VolumeUnit> v2 = new Quantity<>(1000, VolumeUnit.MILLILITRE);
-        Quantity<VolumeUnit> v3 = new Quantity<>(1, VolumeUnit.GALLON);
+        Quantity<WeightUnit> w1 = new Quantity<>(10, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> w2 = new Quantity<>(5, WeightUnit.KILOGRAM);
 
-        System.out.println(v1.equals(v2));
-        System.out.println(v3.convertTo(VolumeUnit.LITRE));
-        System.out.println(v1.add(v3));
+        System.out.println(w1.subtract(w2));
+        System.out.println(w1.divide(w2));
+
+        Quantity<VolumeUnit> v1 = new Quantity<>(5, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(2, VolumeUnit.LITRE);
+
+        System.out.println(v1.subtract(v2));
+        System.out.println(v1.divide(v2));
     }
 }
